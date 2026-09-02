@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import type { InvitationContent, UpdateInvitationState } from "./types";
 
-const contentFields = ["host_names_ar", "host_names_en", "headline_ar", "headline_en", "invitation_text_ar", "invitation_text_en"] as const;
+const contentFields = ["host_names", "headline", "invitation_text"] as const;
 const shortTextMaxLength = 160;
 const invitationTextMaxLength = 2000;
 
@@ -24,7 +24,7 @@ export async function updateInvitationContent(_: UpdateInvitationState, formData
   const fieldErrors: NonNullable<UpdateInvitationState["fieldErrors"]> = {};
 
   for (const field of contentFields) {
-    const maximumLength = field.startsWith("invitation_text") ? invitationTextMaxLength : shortTextMaxLength;
+    const maximumLength = field === "invitation_text" ? invitationTextMaxLength : shortTextMaxLength;
     if (content[field].length > maximumLength) fieldErrors[field] = "النص طويل جدًا.";
   }
 

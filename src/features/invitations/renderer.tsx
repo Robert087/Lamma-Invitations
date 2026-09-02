@@ -1,7 +1,7 @@
 import { invitationSections, type InvitationSectionId } from "@/config/invitation-sections";
 import type { Locale } from "@/types/locale";
 
-import { formatInvitationDate, getLocaleDirection, getLocalizedContent } from "./content";
+import { formatInvitationDate, getTextDirection } from "./content";
 import type { InvitationModel } from "./types";
 
 type InvitationRendererProps = {
@@ -10,23 +10,22 @@ type InvitationRendererProps = {
 };
 
 function HeroSection({ invitation, locale }: InvitationRendererProps) {
-  const hosts = getLocalizedContent(locale, invitation.content.host_names_ar, invitation.content.host_names_en);
-  const headline = getLocalizedContent(locale, invitation.content.headline_ar, invitation.content.headline_en);
+  const { headline, host_names: hosts } = invitation.content;
 
   return (
     <header className="rounded-2xl bg-stone-900 px-6 py-10 text-center text-stone-50">
-      {headline ? <p className="text-sm tracking-wide text-stone-300">{headline}</p> : null}
-      <h1 className="mt-3 text-3xl font-semibold">{invitation.event.title}</h1>
-      {hosts ? <p className="mt-3 text-lg text-stone-200">{hosts}</p> : null}
+      {headline ? <p className="text-sm tracking-wide text-stone-300" dir={getTextDirection(headline)}>{headline}</p> : null}
+      <h1 className="mt-3 text-3xl font-semibold" dir="auto">{invitation.event.title}</h1>
+      {hosts ? <p className="mt-3 text-lg text-stone-200" dir={getTextDirection(hosts)}>{hosts}</p> : null}
       {invitation.event.event_date ? <p className="mt-5 text-sm text-stone-300">{formatInvitationDate(invitation.event.event_date, locale)}</p> : null}
     </header>
   );
 }
 
-function InvitationTextSection({ invitation, locale }: InvitationRendererProps) {
-  const text = getLocalizedContent(locale, invitation.content.invitation_text_ar, invitation.content.invitation_text_en);
+function InvitationTextSection({ invitation }: InvitationRendererProps) {
+  const text = invitation.content.invitation_text;
 
-  return text ? <p className="whitespace-pre-line px-3 text-center text-base leading-8 text-stone-700">{text}</p> : null;
+  return text ? <p className="whitespace-pre-line px-3 text-center text-base leading-8 text-stone-700" dir={getTextDirection(text)}>{text}</p> : null;
 }
 
 function EventDetailsSection({ invitation, locale }: InvitationRendererProps) {
@@ -36,7 +35,7 @@ function EventDetailsSection({ invitation, locale }: InvitationRendererProps) {
   return (
     <section className="rounded-xl bg-stone-100 p-5 text-center text-sm text-stone-700">
       {event.event_date ? <p>{formatInvitationDate(event.event_date, locale)}</p> : null}
-      {event.venue_name ? <p className={event.event_date ? "mt-2" : ""}>{event.venue_name}</p> : null}
+      {event.venue_name ? <p className={event.event_date ? "mt-2" : ""} dir="auto">{event.venue_name}</p> : null}
     </section>
   );
 }
@@ -67,9 +66,10 @@ const sectionComponents: Partial<Record<InvitationSectionId, (props: InvitationR
 
 export function InvitationRenderer({ invitation, locale }: InvitationRendererProps) {
   const enabledSections = [...invitation.sections].filter((section) => section.enabled).sort((a, b) => a.position - b.position);
+  const contentDirection = getTextDirection([invitation.content.headline, invitation.content.host_names, invitation.content.invitation_text].filter(Boolean).join(" "));
 
   return (
-    <article className="mx-auto w-full max-w-sm space-y-6 rounded-[2rem] border-8 border-stone-800 bg-stone-50 p-4 shadow-lg" dir={getLocaleDirection(locale)}>
+    <article className="mx-auto w-full max-w-sm space-y-6 rounded-[2rem] border-8 border-stone-800 bg-stone-50 p-4 shadow-lg" dir={contentDirection}>
       {enabledSections.map((section) => {
         const SectionComponent = invitationSections[section.section_type]?.implemented ? sectionComponents[section.section_type] : undefined;
 

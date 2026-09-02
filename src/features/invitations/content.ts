@@ -1,14 +1,13 @@
 import type { Locale, TextDirection } from "@/types/locale";
 
-export function getLocalizedContent(locale: Locale, arabic: string | null, english: string | null) {
-  const preferred = locale === "ar" ? arabic : english;
-  const fallback = locale === "ar" ? english : arabic;
+const rtlCharacterPattern = /[\u0590-\u08ff\ufb1d-\ufdff\ufe70-\ufeff]/g;
+const ltrCharacterPattern = /[A-Za-z\u00c0-\u024f]/g;
 
-  return preferred?.trim() || fallback?.trim() || null;
-}
+export function getTextDirection(text: string | null | undefined): TextDirection {
+  const rtlCharacters = text?.match(rtlCharacterPattern)?.length ?? 0;
+  const ltrCharacters = text?.match(ltrCharacterPattern)?.length ?? 0;
 
-export function getLocaleDirection(locale: Locale): TextDirection {
-  return locale === "ar" ? "rtl" : "ltr";
+  return rtlCharacters > ltrCharacters ? "rtl" : "ltr";
 }
 
 export function formatInvitationDate(eventDate: string, locale: Locale) {

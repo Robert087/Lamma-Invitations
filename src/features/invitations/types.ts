@@ -3,12 +3,9 @@ import type { InvitationSectionId } from "@/config/invitation-sections";
 import type { EventSummary } from "@/features/events/types";
 
 export type InvitationContent = {
-  headline_ar: string | null;
-  headline_en: string | null;
-  invitation_text_ar: string | null;
-  invitation_text_en: string | null;
-  host_names_ar: string | null;
-  host_names_en: string | null;
+  headline: string | null;
+  invitation_text: string | null;
+  host_names: string | null;
 };
 
 export type InvitationSection = {

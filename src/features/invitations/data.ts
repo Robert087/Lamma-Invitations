@@ -8,12 +8,9 @@ import { createClient } from "@/lib/supabase/server";
 import type { InvitationContent, InvitationModel, InvitationSection } from "./types";
 
 const defaultContent: InvitationContent = {
-  headline_ar: "يسعدنا دعوتكم",
-  headline_en: "You're Invited",
-  invitation_text_ar: null,
-  invitation_text_en: null,
-  host_names_ar: null,
-  host_names_en: null,
+  headline: "وجودكم يكمّل فرحتنا ✨",
+  invitation_text: null,
+  host_names: null,
 };
 
 async function initializeInvitation(eventId: string) {
@@ -25,36 +22,7 @@ async function initializeInvitation(eventId: string) {
     supabase.from("event_sections").upsert(defaultInvitationSections.map((section) => ({ event_id: eventId, ...section })), { onConflict: "event_id,position", ignoreDuplicates: true }),
   ]);
 
-  if (contentError || experienceError || sectionsError) {
-    console.error("Invitation initialization failed", {
-      content: contentError
-        ? {
-            code: contentError.code,
-            message: contentError.message,
-            details: contentError.details,
-            hint: contentError.hint,
-          }
-        : null,
-      experience: experienceError
-        ? {
-            code: experienceError.code,
-            message: experienceError.message,
-            details: experienceError.details,
-            hint: experienceError.hint,
-          }
-        : null,
-      sections: sectionsError
-        ? {
-            code: sectionsError.code,
-            message: sectionsError.message,
-            details: sectionsError.details,
-            hint: sectionsError.hint,
-          }
-        : null,
-    });
-
-    throw new Error("Unable to initialize invitation.");
-  }
+  if (contentError || experienceError || sectionsError) throw new Error("Unable to initialize invitation.");
 }
 
 export async function loadInvitationForOwnedEvent(user: User, eventId: string): Promise<InvitationModel | null> {
@@ -67,7 +35,7 @@ export async function loadInvitationForOwnedEvent(user: User, eventId: string): 
 
   const supabase = await createClient();
   const [{ data: content, error: contentError }, { data: experience, error: experienceError }, { data: sections, error: sectionsError }] = await Promise.all([
-    supabase.from("event_content").select("headline_ar, headline_en, invitation_text_ar, invitation_text_en, host_names_ar, host_names_en").eq("event_id", event.id).single(),
+    supabase.from("event_content").select("headline, invitation_text, host_names").eq("event_id", event.id).single(),
     supabase.from("event_experience").select("experience_key").eq("event_id", event.id).single(),
     supabase.from("event_sections").select("id, section_type, position, enabled").eq("event_id", event.id).order("position"),
   ]);
