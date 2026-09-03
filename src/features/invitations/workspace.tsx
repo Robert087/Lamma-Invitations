@@ -82,10 +82,14 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
         </div>
       </header>
 
-      <main className="lm-wrap pb-10">
-        <div className="mb-6">
-          <p className="lm-kicker">Invitation Studio</p>
-          <h1 className="mt-2 text-3xl font-bold">صمّم الإحساس، مش بس الدعوة.</h1>
+      <main className="lm-wrap pb-16">
+        <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="lm-kicker">Invitation Studio / مساحة الإبداع</p>
+            <h1 className="mt-2 text-balance text-3xl font-bold tracking-tight sm:text-4xl">صمّم الإحساس، مش بس الدعوة.</h1>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--lm-muted)]">كل تعديل يظهر أمامك فورًا. ابدأ بالكلمات، ثم دع التصميم يكمل الحكاية.</p>
+          </div>
+          <span className="lm-status">مسودة حيّة</span>
         </div>
 
         <AiCreator invitation={invitation} />
@@ -115,7 +119,7 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
           )}
         </section>
 
-        <div className="grid gap-6 xl:grid-cols-[200px_460px_minmax(0,1fr)]">
+        <div className="grid gap-8 xl:grid-cols-[180px_420px_minmax(0,1fr)]">
           {/* Navigation tabs */}
           <nav className="lm-panel flex h-fit gap-1 p-2 xl:flex-col">
             {nav.map((item) => (
@@ -421,8 +425,8 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
           </section>
 
           {/* Live Preview Panel */}
-          <section className="min-w-0">
-            <div className="mb-4 flex items-center justify-between">
+          <section className="min-w-0 xl:sticky xl:top-6 xl:self-start">
+            <div className="mb-4 flex items-center justify-between rounded-2xl border border-[var(--lm-line)] bg-[var(--lm-surface)] px-4 py-3">
               <div>
                 <p className="font-bold">معاينة حية</p>
                 <p className="text-sm text-[var(--lm-muted)]">تحديث فوري لكل التغييرات.</p>
@@ -450,7 +454,7 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
             </div>
 
             <div
-              className={`overflow-hidden rounded-[1.5rem] border border-[var(--lm-line)] bg-white shadow-[var(--lm-shadow)] transition-all duration-200 ${
+              className={`overflow-hidden rounded-[2rem] border border-[var(--lm-line)] bg-[var(--lm-surface)] shadow-[var(--lm-shadow)] transition-all duration-200 ${
                 mode === "mobile" ? "mx-auto max-w-[390px]" : "w-full"
               }`}
             >
@@ -466,7 +470,7 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
 function VariantThumbnail({ variant }: { variant: InvitationVariant }) {
   if (variant === "editorial") {
     return (
-      <div className="flex h-16 w-full flex-col items-center justify-center rounded-lg border border-[#eddcd0] bg-[#fdfaf7] p-2 text-[#2b221a]">
+      <div className="lm-thumb lm-thumb-editorial flex h-20 w-full flex-col items-center justify-center rounded-lg border p-2">
         <div className="h-1 w-6 rounded-full bg-[#c96242]" />
         <div className="mt-1.5 h-1.5 w-14 rounded-full bg-current/60" />
         <div className="mt-1 h-1 w-20 rounded-full bg-current/25" />
@@ -477,7 +481,7 @@ function VariantThumbnail({ variant }: { variant: InvitationVariant }) {
 
   if (variant === "statement") {
     return (
-      <div className="flex h-16 w-full flex-col justify-between rounded-lg border-2 border-black/30 bg-white p-2 text-black">
+      <div className="lm-thumb lm-thumb-statement flex h-20 w-full flex-col justify-between rounded-lg border-2 p-2">
         <div className="flex justify-between items-center">
           <div className="h-1.5 w-4 bg-black" />
           <div className="h-1 w-6 bg-black/40" />
@@ -490,7 +494,7 @@ function VariantThumbnail({ variant }: { variant: InvitationVariant }) {
 
   if (variant === "split") {
     return (
-      <div className="grid h-16 w-full grid-cols-12 rounded-lg border border-gray-200 bg-white overflow-hidden">
+      <div className="lm-thumb lm-thumb-split grid h-20 w-full grid-cols-12 overflow-hidden rounded-lg border">
         <div className="col-span-5 bg-gray-50 p-1.5 flex flex-col justify-center border-r border-gray-200">
           <div className="h-1.5 w-5 bg-blue-600 rounded-full" />
           <div className="mt-1.5 h-2 w-7 bg-gray-800 rounded-xs" />

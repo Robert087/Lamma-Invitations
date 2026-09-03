@@ -897,7 +897,7 @@ export function InvitationRenderer({ invitation, locale }: Props) {
 
     return (
       <article
-        className={`min-h-full overflow-hidden ${tokens.surface} ${tokens.text} ${typographyTokens[themeConfig.typography]}`}
+        className={`lm-invitation lm-variant-${variant} min-h-full overflow-hidden ${tokens.surface} ${tokens.text} ${typographyTokens[themeConfig.typography]}`}
       >
         {/* Desktop Split Layout */}
         <div className="mx-auto max-w-6xl lg:grid lg:grid-cols-12 lg:min-h-[700px]">
@@ -956,7 +956,7 @@ export function InvitationRenderer({ invitation, locale }: Props) {
   if (variant === "soft-organic") {
     return (
       <article
-        className={`min-h-full overflow-hidden ${tokens.surface} ${tokens.text} ${typographyTokens[themeConfig.typography]}`}
+        className={`lm-invitation lm-variant-${variant} min-h-full overflow-hidden ${tokens.surface} ${tokens.text} ${typographyTokens[themeConfig.typography]}`}
       >
         <div className="mx-auto max-w-3xl pb-12">
           {sortedSections.map((section) => {
@@ -971,7 +971,7 @@ export function InvitationRenderer({ invitation, locale }: Props) {
   // 4. DARK MODERN, EDITORIAL, STATEMENT: Standard Fluid Flows
   return (
     <article
-      className={`min-h-full overflow-hidden ${tokens.surface} ${tokens.text} ${typographyTokens[themeConfig.typography]}`}
+      className={`lm-invitation lm-variant-${variant} min-h-full overflow-hidden ${tokens.surface} ${tokens.text} ${typographyTokens[themeConfig.typography]}`}
     >
       <div className="mx-auto max-w-4xl">
         {sortedSections.map((section) => {

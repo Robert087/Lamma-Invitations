@@ -8,17 +8,17 @@
 }
 
 :root {
-  --lm-canvas: #f6f6f2;
-  --lm-surface: #ffffff;
-  --lm-surface-soft: #eef0e9;
-  --lm-ink: #17221c;
-  --lm-muted: #647068;
-  --lm-line: #dce2da;
-  --lm-accent: #db5d3f;
-  --lm-accent-dark: #b84830;
-  --lm-accent-soft: #fde9e3;
-  --lm-green: #3e6252;
-  --lm-shadow: 0 18px 45px rgba(25, 42, 32, 0.09);
+  --lm-canvas: #f4f1ea;
+  --lm-surface: #fffdf9;
+  --lm-surface-soft: #ebe8df;
+  --lm-ink: #1e2923;
+  --lm-muted: #6d766f;
+  --lm-line: #d9d8ce;
+  --lm-accent: #c85f43;
+  --lm-accent-dark: #a84932;
+  --lm-accent-soft: #f5dfd5;
+  --lm-green: #496653;
+  --lm-shadow: 0 22px 60px rgba(30, 41, 35, 0.10);
 }
 
 * { box-sizing: border-box; }
@@ -28,7 +28,7 @@ button, input, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 3px solid color-mix(in srgb, var(--lm-accent) 55%, white); outline-offset: 3px; }
 
-.lm-shell { min-height: 100vh; background: radial-gradient(circle at 100% 0, #fce9df 0, transparent 28rem), var(--lm-canvas); }
+.lm-shell { min-height: 100vh; background: linear-gradient(135deg, color-mix(in srgb, var(--lm-canvas) 88%, white), var(--lm-canvas)); }
 .lm-wrap { width: min(100% - 2rem, 1120px); margin-inline: auto; }
 .lm-topbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 5.25rem; }
 .lm-brand { color: var(--lm-ink); font-size: 1.4rem; font-weight: 700; letter-spacing: -.06em; text-decoration: none; }
@@ -45,7 +45,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .lm-button-accent:hover { background: var(--lm-accent-dark); }
 .lm-button-quiet { border-color: var(--lm-line); background: var(--lm-surface); color: var(--lm-ink); }
 .lm-button-quiet:hover { background: var(--lm-surface-soft); box-shadow: none; }
-.lm-panel { border: 1px solid var(--lm-line); border-radius: 1.25rem; background: var(--lm-surface); box-shadow: var(--lm-shadow); }
+.lm-panel { border: 1px solid var(--lm-line); border-radius: 1.5rem; background: color-mix(in srgb, var(--lm-surface) 94%, transparent); box-shadow: var(--lm-shadow); }
 .lm-input { width: 100%; border: 1px solid var(--lm-line); border-radius: .75rem; padding: .78rem .9rem; background: #fbfcfa; color: var(--lm-ink); transition: border .18s ease, box-shadow .18s ease, background .18s ease; }
 .lm-input:focus { outline: none; border-color: var(--lm-accent); background: white; box-shadow: 0 0 0 4px var(--lm-accent-soft); }
 .lm-status { display: inline-flex; align-items: center; border-radius: 999px; padding: .28rem .62rem; background: var(--lm-surface-soft); color: var(--lm-green); font-size: .74rem; font-weight: 700; }
@@ -54,6 +54,29 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .lm-event-row:hover { padding-inline: .4rem; }
 .lm-event-row:first-child { border-top: 0; }
 .lm-section-head { display: flex; align-items: end; justify-content: space-between; gap: 1rem; }
+
+/* Each invitation variant owns a distinct composition language. */
+.lm-invitation { position: relative; isolation: isolate; }
+.lm-variant-editorial { letter-spacing: .01em; }
+.lm-variant-editorial > div { max-width: 68rem; }
+.lm-variant-editorial h1 { font-family: var(--font-cormorant), Georgia, serif; font-weight: 500; }
+.lm-variant-statement h1 { text-transform: uppercase; }
+.lm-variant-statement section { border-inline-start: .35rem solid currentColor; }
+.lm-variant-split { background-image: linear-gradient(90deg, transparent 49.9%, color-mix(in srgb, currentColor 12%, transparent) 50%, transparent 50.1%); }
+.lm-variant-framed { box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 12%, transparent); }
+.lm-variant-soft-organic h1 { letter-spacing: -.04em; }
+.lm-variant-soft-organic section > div { border-radius: 2.5rem 2.5rem 1rem 1rem; }
+.lm-variant-dark-modern { letter-spacing: .02em; }
+.lm-variant-dark-modern h1 { font-family: var(--font-cairo), Arial, sans-serif; letter-spacing: -.06em; }
+.lm-thumb-editorial { background: var(--lm-surface); border-color: var(--lm-line); color: var(--lm-ink); }
+.lm-thumb-statement { background: var(--lm-ink); border-color: var(--lm-ink); color: var(--lm-surface); }
+.lm-thumb-split { background: linear-gradient(90deg, var(--lm-surface-soft) 42%, var(--lm-surface) 42%); border-color: var(--lm-line); }
+
+@media (max-width: 640px) {
+  .lm-variant-split { background-image: none; }
+  .lm-variant-statement section { border-inline-start: 0; border-block-start: .25rem solid currentColor; }
+  .lm-variant-framed { margin-inline: .5rem; }
+}
 
 @media (max-width: 640px) {
   .lm-wrap { width: min(100% - 1.25rem, 1120px); }
