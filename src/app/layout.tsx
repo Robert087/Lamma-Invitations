@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang={appConfig.defaultLocale} dir={appConfig.defaultDirection} className={`${cormorant.variable} ${cairo.variable}`}>
+    <html lang={appConfig.defaultLocale} dir={appConfig.defaultDirection} className={`${cormorant.variable} ${cairo.variable} bg-background`}>
       <body>{children}</body>
     </html>
   );

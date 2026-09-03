@@ -2,37 +2,44 @@ import Link from "next/link";
 
 import { AppFrame } from "@/components/layout/app-frame";
 
-const occasions = ["زفاف", "خطوبة", "كتب كتاب", "عيد ميلاد", "استقبال مولود", "تخرج", "حفلة", "مناسبة خاصة"];
-const specimens = [
-  { label: "زفاف", title: "Ahmed & Salma", meta: "20 أكتوبر 2026 · القاهرة", tone: "specimen-ink" },
-  { label: "كتب كتاب", title: "ليلة من العمر", meta: "الجمعة، 14 نوفمبر · عمّان", tone: "specimen-sand" },
-  { label: "ميلاد", title: "Lina turns 5", meta: "Saturday, 7 March · Riyadh", tone: "specimen-coral" },
+const moments = [
+  { number: "01", title: "الفكرة", copy: "قول لنا عن المناسبة بالطريقة اللي تحبها.", tone: "moment-sun" },
+  { number: "02", title: "الدهشة", copy: "Lamma يحوّل إحساسك إلى دعوة تنفتح مثل قصة.", tone: "moment-blue" },
+  { number: "03", title: "اللمّة", copy: "شاركها. وخلي أول لحظة توصل قبل الموعد.", tone: "moment-coral" },
 ];
 
 export default function Home() {
   return (
-    <AppFrame action={<Link className="lm-link" href="/sign-in">ابدأ الآن <span aria-hidden="true">↗</span></Link>}>
-      <main>
-        <section className="lm-wrap lm-hero">
-          <div className="lm-hero-copy">
-            <p className="lm-kicker">دعوات رقمية، بروح مناسبتك</p>
-            <h1 className="lm-title">خلي دعوتك<br /><em>تحكي الحكاية.</em></h1>
-            <p className="lm-copy lm-hero-lede">Lamma مساحة هادئة لصناعة دعوة تشبهك. ابدأ من شعور، اختار التفاصيل، وخلي أول لحظة من مناسبتك تبدأ من الشاشة.</p>
-            <div className="lm-actions"><Link className="lm-button lm-button-accent" href="/sign-in">أنشئ دعوتك <span aria-hidden="true">↗</span></Link><a className="lm-button lm-button-quiet" href="#inspiration">شوف الإلهام</a></div>
-            <p className="lm-note"><span className="lm-dot" /> صمّم بالعربي أو English — بدون قوالب مكررة</p>
+    <AppFrame action={<Link className="lm-nav-cta" href="/sign-in">اصنع دعوتك <span>↗</span></Link>}>
+      <main className="lm-home">
+        <section className="lm-hero-new">
+          <div className="lm-hero-photo" role="img" aria-label="تفاصيل احتفال مشمس من Lamma" />
+          <div className="lm-hero-overlay" />
+          <div className="lm-hero-content lm-wrap">
+            <p className="lm-eyebrow">لمّة · دعوات تُعاش</p>
+            <h1>المناسبة<br /><i>تبدأ هنا.</i></h1>
+            <p className="lm-hero-copy-new">دعوة رقمية فيها منكم — من أول فكرة، إلى اللحظة اللي يفتحها ضيفك ويبتسم.</p>
+            <Link className="lm-circle-cta" href="/sign-in" aria-label="ابدأ تصميم دعوتك">ابدأ<br />الآن <span>↗</span></Link>
           </div>
-          <div className="lm-hero-art" aria-label="نماذج من دعوات Lamma">
-            <div className="hero-stamp">LAMMA<br /><span>دعوة من القلب</span></div>
-            <div className="hero-card"><p className="hero-card-kicker">A new chapter</p><p className="hero-names">Ahmed<br /><span>&amp;</span> Salma</p><div className="hero-rule" /><p className="hero-meta">20.10.26<br />Cairo, Egypt</p></div>
-            <p className="hero-caption">made for the moments<br /><strong>you want to remember</strong></p>
+          <div className="lm-hero-bottom lm-wrap"><span>01 — 04</span><span>صمّم بالعربي أو English</span><span>اسحب لتكتشف</span></div>
+        </section>
+
+        <section className="lm-manifesto lm-wrap">
+          <p className="lm-eyebrow">ليست صورة تُرسلها</p>
+          <h2>إنها <i>لحظة</i><br />تصل إلى ضيوفك.</h2>
+          <p className="lm-manifesto-copy">من الزفاف إلى أول عيد ميلاد. اصنع تجربة تشبه صوتكم، وتترك أثراً أطول من أي رسالة.</p>
+        </section>
+
+        <section className="lm-journey">
+          <div className="lm-wrap">
+            <div className="lm-section-intro"><p className="lm-eyebrow">من إحساس إلى تجربة</p><span>لمّة في ثلاث حركات</span></div>
+            <div className="lm-moments">{moments.map((moment) => <article className={`lm-moment ${moment.tone}`} key={moment.number}><span className="lm-moment-number">{moment.number}</span><div className="lm-moment-art"><span>{moment.number === "01" ? "وش نحتفل؟" : moment.number === "02" ? "صارت دعوة" : "خلّها توصل"}</span></div><h3>{moment.title}</h3><p>{moment.copy}</p></article>)}</div>
           </div>
         </section>
 
-        <section className="lm-wrap lm-section" id="inspiration"><div className="lm-section-head"><div><p className="lm-kicker">بدايات جميلة</p><h2 className="lm-subtitle">دعوتك، على طريقتك.</h2></div><span className="lm-index">01 / 03</span></div><div className="lm-specimens">{specimens.map((item) => <article className={`lm-specimen ${item.tone}`} key={item.title}><span className="specimen-label">{item.label}</span><div><h3>{item.title}</h3><p>{item.meta}</p></div><span className="specimen-arrow">↗</span></article>)}</div></section>
+        <section className="lm-showcase lm-wrap"><div className="lm-showcase-copy"><p className="lm-eyebrow">تجارب لها شخصيات مختلفة</p><h2>كل لمّة<br /><i>لها نبرة.</i></h2><p>هادئة. جريئة. حنونة. أو مليانة حياة. اختر الإحساس، وخلّ Lamma يبني المشهد.</p><Link className="lm-text-link" href="/sign-in">استكشف الاستوديو <span>↗</span></Link></div><div className="lm-invite-stack"><div className="lm-invite-card invite-dark"><span>A new chapter</span><strong>Ahmed<br /><em>&amp;</em> Salma</strong><small>20 · 10 · 2026<br />Cairo, Egypt</small></div><div className="lm-invite-card invite-image"><span>ليلة من العمر</span><strong>نور<br /><i>و</i> أحمد</strong><small>اكتوبر ٢٠٢٦</small></div></div></section>
 
-        <section className="lm-wrap lm-occasion-section"><div><p className="lm-kicker">كل لحظة تستحق دعوة</p><h2 className="lm-subtitle">من أول فكرة<br />إلى أول <em>«واو».</em></h2></div><div className="lm-occasion-list">{occasions.map((occasion, index) => <Link href="/sign-in" key={occasion}><span>0{index + 1}</span>{occasion}<b>↗</b></Link>)}</div></section>
-
-        <section className="lm-wrap lm-bottom-cta"><p className="lm-kicker">جاهز تبدأ؟</p><h2 className="lm-subtitle">في مناسبات ما تتكرر.<br /><em>خلّي دعوتها ما تتنسى.</em></h2><Link className="lm-button lm-button-accent" href="/sign-in">ابدأ مع Lamma <span aria-hidden="true">↗</span></Link></section>
+        <section className="lm-final-cta"><div className="lm-wrap"><p className="lm-eyebrow">الآن دور مناسبتك</p><h2>خلّها تبدأ<br /><i>بشكل يشبهكم.</i></h2><Link className="lm-dark-button" href="/sign-in">أنشئ دعوتك مع Lamma <span>↗</span></Link></div></section>
       </main>
     </AppFrame>
   );
