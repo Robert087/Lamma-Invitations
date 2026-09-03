@@ -10,6 +10,7 @@ import {
 import { invitationSections, type InvitationSectionId } from "@/config/invitation-sections";
 import type { Locale } from "@/types/locale";
 import { formatInvitationDate, getInvitationDateParts, getTextDirection } from "./content";
+import { Countdown } from "./countdown";
 import type { InvitationModel } from "./types";
 
 type Props = {
@@ -21,6 +22,10 @@ type SectionProps = Props & {
   tokens: ThemeTokens;
   variant: InvitationVariant;
 };
+
+function isSafeLocationUrl(value: string) {
+  try { const url = new URL(value); return url.protocol === "https:" || url.protocol === "http:"; } catch { return false; }
+}
 
 // =============================================================================
 // HERO SECTIONS BY VARIANT
@@ -679,14 +684,14 @@ function DarkModernDetails({ invitation, locale, tokens }: SectionProps) {
 
 function EditorialLocation({ invitation, locale, tokens }: SectionProps) {
   const url = invitation.event.location_url;
-  if (!url) return null;
+  if (!url || !isSafeLocationUrl(url)) return null;
 
   return (
     <section className="px-6 py-10 sm:py-14 text-center">
       <a
         className={`inline-flex items-center gap-2 rounded-full px-7 py-3 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 ${tokens.accent}`}
         href={url}
-        rel="noreferrer"
+        rel="noopener noreferrer"
         target="_blank"
       >
         <span>📍</span>
@@ -698,14 +703,14 @@ function EditorialLocation({ invitation, locale, tokens }: SectionProps) {
 
 function StatementLocation({ invitation, locale, tokens }: SectionProps) {
   const url = invitation.event.location_url;
-  if (!url) return null;
+  if (!url || !isSafeLocationUrl(url)) return null;
 
   return (
     <section className="border-b-2 border-current/15 px-6 py-10 sm:px-12 sm:py-14 text-center">
       <a
         className={`inline-block w-full max-w-md px-8 py-4 text-center text-sm font-black uppercase tracking-wider text-white transition-opacity hover:opacity-90 ${tokens.accent}`}
         href={url}
-        rel="noreferrer"
+        rel="noopener noreferrer"
         target="_blank"
       >
         {locale === "ar" ? "احصل على الاتجاهات ↗" : "Get Directions ↗"}
@@ -716,14 +721,14 @@ function StatementLocation({ invitation, locale, tokens }: SectionProps) {
 
 function SplitLocation({ invitation, locale, tokens }: SectionProps) {
   const url = invitation.event.location_url;
-  if (!url) return null;
+  if (!url || !isSafeLocationUrl(url)) return null;
 
   return (
     <section className="px-6 py-8 sm:px-10 sm:py-10">
       <a
         className={`flex items-center justify-between rounded-xl px-6 py-4 text-sm font-bold text-white transition-opacity hover:opacity-95 ${tokens.accent}`}
         href={url}
-        rel="noreferrer"
+        rel="noopener noreferrer"
         target="_blank"
       >
         <span>{locale === "ar" ? "خريطة الوصول للمناسبة" : "Event Directions"}</span>
@@ -735,14 +740,14 @@ function SplitLocation({ invitation, locale, tokens }: SectionProps) {
 
 function FramedLocation({ invitation, locale, tokens }: SectionProps) {
   const url = invitation.event.location_url;
-  if (!url) return null;
+  if (!url || !isSafeLocationUrl(url)) return null;
 
   return (
     <section className="px-6 py-10 text-center">
       <a
         className={`inline-flex items-center gap-2 border px-6 py-3 font-serif text-xs font-bold tracking-widest uppercase transition-colors hover:bg-current/5 ${tokens.border}`}
         href={url}
-        rel="noreferrer"
+        rel="noopener noreferrer"
         target="_blank"
       >
         <span className={tokens.accentText}>❖</span>
@@ -755,14 +760,14 @@ function FramedLocation({ invitation, locale, tokens }: SectionProps) {
 
 function SoftOrganicLocation({ invitation, locale, tokens }: SectionProps) {
   const url = invitation.event.location_url;
-  if (!url) return null;
+  if (!url || !isSafeLocationUrl(url)) return null;
 
   return (
     <section className="px-6 py-10 text-center">
       <a
         className={`inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm font-bold text-white shadow-sm transition-transform hover:scale-[1.02] ${tokens.accent}`}
         href={url}
-        rel="noreferrer"
+        rel="noopener noreferrer"
         target="_blank"
       >
         <span>🗺️</span>
@@ -774,14 +779,14 @@ function SoftOrganicLocation({ invitation, locale, tokens }: SectionProps) {
 
 function DarkModernLocation({ invitation, locale, tokens }: SectionProps) {
   const url = invitation.event.location_url;
-  if (!url) return null;
+  if (!url || !isSafeLocationUrl(url)) return null;
 
   return (
     <section className="px-6 py-12 text-center">
       <a
         className={`inline-flex items-center gap-3 rounded-lg border border-white/20 px-8 py-3.5 text-sm font-mono font-bold text-white transition-all hover:border-white/40 ${tokens.accent}`}
         href={url}
-        rel="noreferrer"
+        rel="noopener noreferrer"
         target="_blank"
       >
         <span>[MAP]</span>
@@ -883,6 +888,12 @@ export function InvitationRenderer({ invitation, locale }: Props) {
     }
     if (sectionType === "location") {
       return <handlers.location invitation={invitation} key={key} locale={locale} tokens={tokens} variant={variant} />;
+    }
+    if (sectionType === "countdown") {
+      return invitation.event.event_date ? <Countdown eventDate={invitation.event.event_date} key={key} locale={locale} timeZone={invitation.event.timezone} /> : null;
+    }
+    if (sectionType === "story") {
+      return invitation.storyItems.length ? <section className="px-6 py-16 sm:px-12" key={key}><div className="mx-auto max-w-3xl"><p className="text-center text-sm font-semibold opacity-65">{locale === "ar" ? "حكايتنا" : "Our story"}</p><div className="mt-8 space-y-7">{[...invitation.storyItems].sort((a, b) => a.position - b.position).map((item) => <article className="border-s-2 border-current/20 ps-5" key={item.id}><p className="text-xs font-semibold opacity-60">{item.date_label}</p><h2 className="mt-1 text-xl font-bold" dir="auto">{item.title}</h2><p className="mt-2 whitespace-pre-line leading-7 opacity-80" dir="auto">{item.body}</p></article>)}</div></div></section> : null;
     }
     if (sectionType === "footer") {
       return <UniversalFooter key={key} locale={locale} variant={variant} />;

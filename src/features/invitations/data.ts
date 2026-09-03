@@ -7,7 +7,7 @@ import { defaultInvitationTheme, parseInvitationThemeConfig } from "@/config/inv
 import { getOwnedEvent } from "@/features/events/data";
 import { createClient } from "@/lib/supabase/server";
 
-import type { InvitationContent, InvitationModel, InvitationSection } from "./types";
+import type { InvitationContent, InvitationModel, InvitationSection, StoryItem } from "./types";
 import type { Locale } from "@/types/locale";
 
 const defaultContent: InvitationContent = {
@@ -51,13 +51,14 @@ export async function loadInvitationForOwnedEvent(user: User, eventId: string): 
   await initializeInvitation(event.id);
 
   const supabase = await createClient();
-  const [{ data: content, error: contentError }, { data: experience, error: experienceError }, { data: sections, error: sectionsError }] = await Promise.all([
+  const [{ data: content, error: contentError }, { data: experience, error: experienceError }, { data: sections, error: sectionsError }, { data: storyItems, error: storyError }] = await Promise.all([
     supabase.from("event_content").select("headline, invitation_text, host_names").eq("event_id", event.id).single(),
     supabase.from("event_experience").select("experience_key, theme_config").eq("event_id", event.id).single(),
     supabase.from("event_sections").select("id, section_type, position, enabled").eq("event_id", event.id).order("position"),
+    supabase.from("event_story_items").select("id, title, body, date_label, position").eq("event_id", event.id).order("position"),
   ]);
 
-  if (contentError || experienceError || sectionsError || !content || !experience) {
+  if (contentError || experienceError || sectionsError || storyError || !content || !experience) {
     throw new Error("Unable to load invitation.");
   }
 
@@ -71,6 +72,7 @@ export async function loadInvitationForOwnedEvent(user: User, eventId: string): 
     experienceKey,
     themeConfig: parseInvitationThemeConfig(experience.theme_config),
     sections: (sections ?? []) as InvitationSection[],
+    storyItems: (storyItems ?? []) as StoryItem[],
   };
 }
 
@@ -79,6 +81,7 @@ type PublicInvitationRow = {
   title: string;
   slug: string;
   event_date: string | null;
+  timezone: string;
   venue_name: string | null;
   location_url: string | null;
   primary_locale: string;
@@ -87,6 +90,7 @@ type PublicInvitationRow = {
   host_names: string | null;
   experience_key: string;
   theme_config: unknown;
+  story: Array<{ title: string; body: string; date_label: string | null; position: number }>;
   sections: Array<{ section_type: string; position: number; enabled: boolean }>;
 };
 
@@ -117,6 +121,7 @@ export async function loadPublishedInvitation(slug: string): Promise<InvitationM
       title: row.title,
       slug: row.slug,
       event_date: row.event_date,
+      timezone: row.timezone,
       venue_name: row.venue_name,
       location_url: row.location_url,
       primary_locale: row.primary_locale as Locale,
@@ -125,5 +130,6 @@ export async function loadPublishedInvitation(slug: string): Promise<InvitationM
     experienceKey: row.experience_key as ExperienceKey,
     themeConfig: parseInvitationThemeConfig(row.theme_config),
     sections,
+    storyItems: Array.isArray(row.story) ? row.story.filter((item) => typeof item.title === "string" && typeof item.body === "string" && Number.isInteger(item.position) && item.position > 0).map((item) => ({ id: `story-${item.position}`, title: item.title, body: item.body, date_label: typeof item.date_label === "string" ? item.date_label : null, position: item.position })) : [],
   };
 }

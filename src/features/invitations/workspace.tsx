@@ -14,6 +14,7 @@ import {
   type PalettePreset,
 } from "@/config/invitation-design";
 import { invitationSections } from "@/config/invitation-sections";
+import { StoryManager } from "./story-manager";
 import { AiCreator } from "./ai-creator";
 import {
   publishInvitation,
@@ -416,6 +417,7 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
                     );
                   })}
                 </div>
+                <StoryManager eventId={invitation.event.id} items={invitation.storyItems} />
               </>
             ) : null}
           </section>

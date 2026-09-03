@@ -187,3 +187,38 @@ export async function applyAiInvitationProposal(formData: FormData) {
   revalidatePath(`/dashboard/events/${event.id}/preview`);
   revalidatePath(`/i/${event.slug}`);
 }
+
+function storyValue(formData: FormData, key: "title" | "body" | "date_label") {
+  const value = formData.get(key);
+  return typeof value === "string" ? value.trim() : "";
+}
+
+export async function saveStoryItem(formData: FormData) {
+  const event = await getAuthorizedEvent(formData.get("event_id"));
+  const storyId = formData.get("story_id");
+  const title = storyValue(formData, "title"); const body = storyValue(formData, "body"); const dateLabel = storyValue(formData, "date_label");
+  if (!event || !title || !body || title.length > 160 || body.length > 2000 || dateLabel.length > 80) return;
+  const supabase = await createClient();
+  if (typeof storyId === "string" && storyId) {
+    await supabase.from("event_story_items").update({ title, body, date_label: dateLabel || null }).eq("id", storyId).eq("event_id", event.id);
+  } else {
+    const { count } = await supabase.from("event_story_items").select("id", { count: "exact", head: true }).eq("event_id", event.id);
+    if ((count ?? 0) >= 8) return;
+    const { data } = await supabase.from("event_story_items").select("position").eq("event_id", event.id).order("position", { ascending: false }).limit(1);
+    await supabase.from("event_story_items").insert({ event_id: event.id, title, body, date_label: dateLabel || null, position: (data?.[0]?.position ?? 0) + 1 });
+  }
+  revalidatePath(`/dashboard/events/${event.id}/invitation`); revalidatePath(`/dashboard/events/${event.id}/preview`); revalidatePath(`/i/${event.slug}`);
+}
+
+export async function changeStoryItem(formData: FormData) {
+  const event = await getAuthorizedEvent(formData.get("event_id")); const storyId = formData.get("story_id"); const intent = formData.get("intent");
+  if (!event || typeof storyId !== "string") return;
+  const supabase = await createClient();
+  if (intent === "delete") await supabase.from("event_story_items").delete().eq("id", storyId).eq("event_id", event.id);
+  if (intent === "up" || intent === "down") {
+    const { data: items } = await supabase.from("event_story_items").select("id, position").eq("event_id", event.id).order("position");
+    const index = (items ?? []).findIndex((item) => item.id === storyId); const current = items?.[index]; const target = items?.[index + (intent === "up" ? -1 : 1)];
+    if (current && target) { const temporary = Math.max(...(items ?? []).map((item) => item.position)) + 1; await supabase.from("event_story_items").update({ position: temporary }).eq("id", target.id); await supabase.from("event_story_items").update({ position: target.position }).eq("id", current.id); await supabase.from("event_story_items").update({ position: current.position }).eq("id", target.id); }
+  }
+  revalidatePath(`/dashboard/events/${event.id}/invitation`); revalidatePath(`/dashboard/events/${event.id}/preview`); revalidatePath(`/i/${event.slug}`);
+}

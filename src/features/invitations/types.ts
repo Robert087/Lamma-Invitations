@@ -18,6 +18,8 @@ export type InvitationSection = {
   enabled: boolean;
 };
 
+export type StoryItem = { id: string; title: string; body: string; date_label: string | null; position: number };
+
 export type InvitationEvent = {
   id: string;
   occasion_type: OccasionId;
@@ -36,6 +38,7 @@ export type InvitationModel = {
   experienceKey: ExperienceKey;
   themeConfig: InvitationThemeConfig;
   sections: InvitationSection[];
+  storyItems: StoryItem[];
 };
 
 export type UpdateInvitationState = {
