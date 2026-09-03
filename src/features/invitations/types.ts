@@ -1,6 +1,9 @@
 import type { ExperienceKey } from "@/config/experiences";
 import type { InvitationSectionId } from "@/config/invitation-sections";
-import type { EventSummary } from "@/features/events/types";
+import type { OccasionId } from "@/config/occasions";
+import type { Locale } from "@/types/locale";
+import type { InvitationThemeConfig } from "@/config/invitation-design";
+import type { AiInvitationProposal } from "@/lib/ai/schemas";
 
 export type InvitationContent = {
   headline: string | null;
@@ -15,10 +18,23 @@ export type InvitationSection = {
   enabled: boolean;
 };
 
+export type InvitationEvent = {
+  id: string;
+  occasion_type: OccasionId;
+  title: string;
+  slug: string;
+  event_date: string | null;
+  venue_name: string | null;
+  location_url: string | null;
+  primary_locale: Locale;
+  timezone?: string;
+};
+
 export type InvitationModel = {
-  event: EventSummary;
+  event: InvitationEvent;
   content: InvitationContent;
   experienceKey: ExperienceKey;
+  themeConfig: InvitationThemeConfig;
   sections: InvitationSection[];
 };
 
@@ -29,3 +45,10 @@ export type UpdateInvitationState = {
 };
 
 export const initialUpdateInvitationState: UpdateInvitationState = {};
+
+export type AiCreatorState = {
+  error?: "invalid" | "limit" | "failed";
+  proposal?: AiInvitationProposal;
+};
+
+export const initialAiCreatorState: AiCreatorState = {};

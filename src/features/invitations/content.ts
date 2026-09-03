@@ -15,3 +15,17 @@ export function formatInvitationDate(eventDate: string, locale: Locale) {
 
   return new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(Date.UTC(year, month - 1, day));
 }
+
+export function getInvitationDateParts(eventDate: string, locale: Locale) {
+  const [year, month, day] = eventDate.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  return {
+    day: String(day),
+    weekday: new Intl.DateTimeFormat(locale, { weekday: "long", timeZone: "UTC" }).format(date),
+    month: new Intl.DateTimeFormat(locale, { month: "short", timeZone: "UTC" }).format(date),
+    monthLong: new Intl.DateTimeFormat(locale, { month: "long", timeZone: "UTC" }).format(date),
+    year: String(year),
+    full: new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(date),
+  };
+}

@@ -1,85 +1,13 @@
 "use client";
-
 import { useActionState, useState } from "react";
-
 import { occasionLabels, occasions } from "@/config/occasions";
-
 import { createEvent } from "./actions";
 import { initialCreateEventState } from "./types";
 
 export function CreateEventForm() {
-  const [step, setStep] = useState(1);
-  const [selectedOccasion, setSelectedOccasion] = useState("");
-  const [occasionError, setOccasionError] = useState("");
-  const [state, formAction, isPending] = useActionState(createEvent, initialCreateEventState);
-
-  function continueToBasics() {
-    if (!selectedOccasion) {
-      setOccasionError("اختر نوع المناسبة للمتابعة.");
-      return;
-    }
-
-    setOccasionError("");
-    setStep(2);
-  }
-
-  return (
-    <form action={formAction} className="mx-auto w-full max-w-xl space-y-6 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-      <input name="timezone" type="hidden" value="Africa/Cairo" />
-      <input name="primary_locale" type="hidden" value="ar" />
-
-      {step === 1 ? (
-        <fieldset>
-          <legend className="text-xl font-semibold text-stone-900">ما نوع مناسبتك؟</legend>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            {occasions.map((occasion) => (
-              <label className="flex cursor-pointer items-center rounded-lg border border-stone-200 p-3 text-sm text-stone-800" key={occasion}>
-                <input checked={selectedOccasion === occasion} className="ml-3" name="occasion_type" onChange={() => setSelectedOccasion(occasion)} type="radio" value={occasion} />
-                {occasionLabels[occasion].ar}
-              </label>
-            ))}
-          </div>
-          {occasionError || state.fieldErrors?.occasion_type ? <p className="mt-3 text-sm text-red-700">{occasionError || state.fieldErrors?.occasion_type}</p> : null}
-          <button className="mt-6 rounded-lg bg-stone-900 px-4 py-2.5 text-sm font-medium text-white" onClick={continueToBasics} type="button">
-            متابعة
-          </button>
-        </fieldset>
-      ) : (
-        <section>
-          <input name="occasion_type" type="hidden" value={selectedOccasion} />
-          <p className="text-sm text-stone-500">الخطوة 2 من 2</p>
-          <h1 className="mt-1 text-xl font-semibold text-stone-900">أساسيات المناسبة</h1>
-          <div className="mt-5 space-y-4">
-            <label className="block text-sm font-medium text-stone-700" htmlFor="title">
-              عنوان المناسبة
-              <input className="mt-2 w-full rounded-lg border border-stone-300 px-3 py-2 outline-none focus:border-stone-600" id="title" maxLength={120} name="title" required type="text" />
-              {state.fieldErrors?.title ? <span className="mt-1 block text-red-700">{state.fieldErrors.title}</span> : null}
-            </label>
-            <label className="block text-sm font-medium text-stone-700" htmlFor="event_date">
-              التاريخ (اختياري)
-              <input className="mt-2 w-full rounded-lg border border-stone-300 px-3 py-2" id="event_date" name="event_date" type="date" />
-              {state.fieldErrors?.event_date ? <span className="mt-1 block text-red-700">{state.fieldErrors.event_date}</span> : null}
-            </label>
-            <label className="block text-sm font-medium text-stone-700" htmlFor="venue_name">
-              اسم المكان (اختياري)
-              <input className="mt-2 w-full rounded-lg border border-stone-300 px-3 py-2" id="venue_name" maxLength={160} name="venue_name" type="text" />
-              {state.fieldErrors?.venue_name ? <span className="mt-1 block text-red-700">{state.fieldErrors.venue_name}</span> : null}
-            </label>
-            <label className="block text-sm font-medium text-stone-700" htmlFor="location_url">
-              رابط الموقع (اختياري)
-              <input className="mt-2 w-full rounded-lg border border-stone-300 px-3 py-2" dir="ltr" id="location_url" name="location_url" type="url" />
-              {state.fieldErrors?.location_url ? <span className="mt-1 block text-red-700">{state.fieldErrors.location_url}</span> : null}
-            </label>
-          </div>
-          {state.formError ? <p className="mt-4 text-sm text-red-700" role="alert">{state.formError}</p> : null}
-          <div className="mt-6 flex gap-3">
-            <button className="rounded-lg border border-stone-300 px-4 py-2.5 text-sm font-medium text-stone-800" disabled={isPending} onClick={() => setStep(1)} type="button">رجوع</button>
-            <button className="rounded-lg bg-stone-900 px-4 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60" disabled={isPending} type="submit">
-              {isPending ? "جارٍ الإنشاء..." : "إنشاء المناسبة"}
-            </button>
-          </div>
-        </section>
-      )}
-    </form>
-  );
+  const [step, setStep] = useState(1); const [selectedOccasion, setSelectedOccasion] = useState(""); const [occasionError, setOccasionError] = useState(""); const [state, formAction, isPending] = useActionState(createEvent, initialCreateEventState);
+  const next = () => { if (!selectedOccasion) { setOccasionError("اختر المناسبة التي تحتفل بها."); return; } setStep(2); };
+  return <form action={formAction} className="lm-panel mx-auto max-w-3xl p-5 sm:p-8"><input name="timezone" type="hidden" value="Africa/Cairo" /><input name="primary_locale" type="hidden" value="ar" />
+    <div className="flex items-center gap-2 text-sm"><span className="grid h-7 w-7 place-items-center rounded-full bg-[var(--lm-ink)] text-white">{step}</span><span className="text-[var(--lm-muted)]">من خطوتين</span></div>
+    {step === 1 ? <fieldset className="mt-7"><legend className="text-2xl font-bold">إيه المناسبة اللي بتحضّر لها؟</legend><p className="lm-copy mt-2 text-sm">اختيارك ده بيساعدك تبدأ من المكان الصح.</p><div className="mt-7 grid gap-3 sm:grid-cols-2">{occasions.map((occasion) => <label className={`cursor-pointer rounded-xl border p-4 transition ${selectedOccasion === occasion ? "border-[var(--lm-accent)] bg-[var(--lm-accent-soft)]" : "border-[var(--lm-line)] bg-white hover:border-[var(--lm-green)]"}`} key={occasion}><input checked={selectedOccasion === occasion} className="sr-only" name="occasion_type" onChange={() => setSelectedOccasion(occasion)} type="radio" value={occasion} /><span className="font-bold">{occasionLabels[occasion].ar}</span><span className="mt-1 block text-xs text-[var(--lm-muted)]">{occasionLabels[occasion].en}</span></label>)}</div>{occasionError || state.fieldErrors?.occasion_type ? <p className="mt-3 text-sm text-red-700">{occasionError || state.fieldErrors?.occasion_type}</p> : null}<button className="lm-button lm-button-accent mt-7" onClick={next} type="button">نكمل</button></fieldset> : <section className="mt-7"><input name="occasion_type" type="hidden" value={selectedOccasion} /><h1 className="text-2xl font-bold">خلّيها واضحة وبسيطة.</h1><p className="lm-copy mt-2 text-sm">تقدر تعدّل أي تفاصيل بعدين.</p><div className="mt-7 grid gap-5 sm:grid-cols-2"><label className="block text-sm font-bold sm:col-span-2">اسم المناسبة<input className="lm-input mt-2" maxLength={120} name="title" required placeholder="مثال: حفل زفاف أحمد وسلمى" type="text" />{state.fieldErrors?.title ? <span className="mt-1 block text-red-700">{state.fieldErrors.title}</span> : null}</label><label className="block text-sm font-bold">اليوم (اختياري)<input className="lm-input mt-2" name="event_date" type="date" /></label><label className="block text-sm font-bold">المكان (اختياري)<input className="lm-input mt-2" maxLength={160} name="venue_name" placeholder="قاعة أو مدينة" type="text" /></label><label className="block text-sm font-bold sm:col-span-2">رابط المكان (اختياري)<input className="lm-input mt-2 text-left" dir="ltr" name="location_url" placeholder="https://" type="url" /></label></div>{state.formError ? <p className="mt-4 text-sm text-red-700">{state.formError}</p> : null}<div className="mt-8 flex gap-3"><button className="lm-button lm-button-quiet" disabled={isPending} onClick={() => setStep(1)} type="button">رجوع</button><button className="lm-button lm-button-accent" disabled={isPending} type="submit">{isPending ? "جارٍ الإنشاء..." : "أنشئ المناسبة"}</button></div></section>}</form>;
 }
