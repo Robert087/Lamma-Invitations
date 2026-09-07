@@ -21,7 +21,7 @@
 
     const { data } = await supabase.auth.getClaims();
 
-    if (request.nextUrl.pathname.startsWith("/dashboard") && !data?.claims.sub) {
+    if (request.nextUrl.pathname.startsWith("/dashboard") && request.nextUrl.pathname !== "/dashboard/events/new" && !data?.claims.sub) {
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = "/sign-in";
       redirectUrl.search = "";

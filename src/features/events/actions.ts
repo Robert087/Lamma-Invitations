@@ -1,5 +1,6 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { occasions, type OccasionId } from "@/config/occasions";
@@ -84,7 +85,17 @@ export async function createEvent(_: CreateEventState, formData: FormData): Prom
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return { formError: "انتهت جلستك. يرجى تسجيل الدخول مرة أخرى." };
+  if (!user) {
+    const cookieStore = await cookies();
+    cookieStore.set("lamma_guest_event_draft", JSON.stringify(values), {
+      httpOnly: true,
+      maxAge: 60 * 60 * 24 * 7,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+    });
+    redirect("/dashboard/events/new?draft=created");
+  }
 
   for (let attempt = 0; attempt < maximumSlugAttempts; attempt += 1) {
     const { data, error } = await supabase
