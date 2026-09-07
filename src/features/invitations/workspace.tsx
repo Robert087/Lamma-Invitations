@@ -371,6 +371,7 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
                 <div className="mt-5 space-y-3">
                   {Object.values(invitationSections).map((definition) => {
                     const section = invitation.sections.find((item) => item.section_type === definition.id);
+                    const isCountdown = definition.id === "countdown";
                     return (
                       <div className="rounded-xl border border-[var(--lm-line)] p-3" key={definition.id}>
                         <div className="flex items-center justify-between gap-3">
@@ -381,7 +382,11 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
                                 ? definition.required
                                   ? "أساسي"
                                   : section?.enabled
-                                  ? "ظاهر"
+                                  ? isCountdown
+                                    ? "ظاهر في الدعوة"
+                                    : "ظاهر"
+                                  : isCountdown
+                                  ? "فاضل قد إيه على اليوم الكبير"
                                   : "مخفي"
                                 : "قريبًا"}
                             </p>
@@ -392,7 +397,7 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
                               <input name="section_id" type="hidden" value={definition.id} />
                               <input name="intent" type="hidden" value="toggle" />
                               <button className="lm-button lm-button-quiet" type="submit">
-                                {section.enabled ? "إخفاء" : "إظهار"}
+                                {section.enabled ? "إخفاء" : isCountdown ? "إظهار في الدعوة" : "إظهار"}
                               </button>
                             </form>
                           ) : null}
