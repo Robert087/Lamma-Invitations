@@ -1,6 +1,5 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { occasions, type OccasionId } from "@/config/occasions";
@@ -86,15 +85,7 @@ export async function createEvent(_: CreateEventState, formData: FormData): Prom
   } = await supabase.auth.getUser();
 
   if (!user) {
-    const cookieStore = await cookies();
-    cookieStore.set("lamma_guest_event_draft", JSON.stringify(values), {
-      httpOnly: true,
-      maxAge: 60 * 60 * 24 * 7,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-    });
-    redirect("/dashboard/events/new?draft=created");
+    redirect("/sign-in?next=/dashboard/events/new");
   }
 
   for (let attempt = 0; attempt < maximumSlugAttempts; attempt += 1) {

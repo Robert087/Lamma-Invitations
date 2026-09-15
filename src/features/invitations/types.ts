@@ -19,6 +19,7 @@ export type InvitationSection = {
 };
 
 export type StoryItem = { id: string; title: string; body: string; date_label: string | null; position: number };
+export type InvitationMedia = { url: string; altText: string | null; position: number };
 
 export type InvitationEvent = {
   id: string;
@@ -39,6 +40,7 @@ export type InvitationModel = {
   themeConfig: InvitationThemeConfig;
   sections: InvitationSection[];
   storyItems: StoryItem[];
+  media: InvitationMedia[];
 };
 
 export type UpdateInvitationState = {

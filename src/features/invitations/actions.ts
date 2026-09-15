@@ -1,19 +1,32 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
+
 import { revalidatePath } from "next/cache";
 
 import { getCurrentUser, getOwnedEvent } from "@/features/events/data";
 import { createClient } from "@/lib/supabase/server";
 import { parseInvitationThemeConfig } from "@/config/invitation-design";
+import { isExperienceKey } from "@/config/experiences";
 import { invitationSections, type InvitationSectionId } from "@/config/invitation-sections";
 import { generateInvitation } from "@/lib/ai/invitation-generator";
 import { aiDescriptionMaxLength, parseAiInvitationProposal, type AiInvitationProposal } from "@/lib/ai/schemas";
 
+import { invitationMediaBucket, invitationMediaLimit, invitationMediaMaxBytes, type MediaActionState } from "./media";
 import type { AiCreatorState, InvitationContent, UpdateInvitationState } from "./types";
 
 const contentFields = ["host_names", "headline", "invitation_text"] as const;
 const shortTextMaxLength = 160;
 const invitationTextMaxLength = 2000;
+
+async function imageExtension(file: File): Promise<"jpg" | "png" | "webp" | null> {
+  const bytes = new Uint8Array(await file.slice(0, 16).arrayBuffer());
+  const matches = (...values: number[]) => values.every((value, index) => bytes[index] === value);
+  if (matches(0xff, 0xd8, 0xff)) return "jpg";
+  if (matches(0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a)) return "png";
+  if (matches(0x52, 0x49, 0x46, 0x46) && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) return "webp";
+  return null;
+}
 
 function getContentValue(formData: FormData, field: keyof InvitationContent) {
   const value = formData.get(field);
@@ -93,8 +106,10 @@ export async function updateInvitationDesign(formData: FormData) {
     typography: formData.get("typography"),
     textScale: formData.get("text_scale"),
   });
+  const experienceKey = formData.get("experience_key");
+  if (!isExperienceKey(experienceKey)) return;
   const supabase = await createClient();
-  await supabase.from("event_experience").update({ theme_config: themeConfig }).eq("event_id", event.id);
+  await supabase.from("event_experience").update({ experience_key: experienceKey, theme_config: themeConfig }).eq("event_id", event.id);
   revalidatePath(`/dashboard/events/${event.id}/invitation`);
   revalidatePath(`/dashboard/events/${event.id}/preview`);
   revalidatePath(`/i/${event.slug}`);
@@ -186,6 +201,90 @@ export async function applyAiInvitationProposal(formData: FormData) {
   revalidatePath(`/dashboard/events/${event.id}/invitation`);
   revalidatePath(`/dashboard/events/${event.id}/preview`);
   revalidatePath(`/i/${event.slug}`);
+}
+
+function revalidateInvitationMedia(eventId: string, slug: string) {
+  revalidatePath(`/dashboard/events/${eventId}/invitation`);
+  revalidatePath(`/dashboard/events/${eventId}/preview`);
+  revalidatePath(`/i/${slug}`);
+}
+
+export async function uploadInvitationMedia(_: MediaActionState, formData: FormData): Promise<MediaActionState> {
+  const event = await getAuthorizedEvent(formData.get("event_id"));
+  const file = formData.get("image");
+  const altText = typeof formData.get("alt_text") === "string" ? String(formData.get("alt_text")).trim() : "";
+  if (!event) return { error: "تعذّر إضافة الصورة. جرّب مرة أخرى." };
+  if (!(file instanceof File) || file.size === 0) return { error: "اختاروا صورة أولًا." };
+  if (file.size > invitationMediaMaxBytes) return { error: "حجم الصورة أكبر من 5 ميجابايت." };
+  if (altText.length > 240) return { error: "وصف الصورة طويل جدًا." };
+
+  const extension = await imageExtension(file);
+  if (!extension) return { error: "مسموح بصور JPEG أو PNG أو WebP فقط." };
+
+  const user = await getCurrentUser();
+  if (!user) return { error: "تعذّر إضافة الصورة. جرّب مرة أخرى." };
+  const supabase = await createClient();
+  const { count, error: countError } = await supabase.from("event_media").select("id", { count: "exact", head: true }).eq("event_id", event.id);
+  if (countError) return { error: "تعذّر قراءة الصور. جرّب مرة أخرى." };
+  if ((count ?? 0) >= invitationMediaLimit) return { error: "يمكن إضافة 15 صورة كحد أقصى." };
+
+  const storagePath = `${user.id}/${event.id}/${randomUUID()}.${extension}`;
+  const { error: uploadError } = await supabase.storage.from(invitationMediaBucket).upload(storagePath, file, {
+    cacheControl: "300",
+    contentType: extension === "jpg" ? "image/jpeg" : `image/${extension}`,
+    upsert: false,
+  });
+  if (uploadError) return { error: "تعذّر رفع الصورة. جرّب مرة أخرى." };
+
+  const { error: insertError } = await supabase.from("event_media").insert({
+    event_id: event.id,
+    media_type: "image",
+    storage_path: storagePath,
+    alt_text: altText || null,
+    position: (count ?? 0) + 1,
+  });
+  if (insertError) {
+    await supabase.storage.from(invitationMediaBucket).remove([storagePath]);
+    return { error: "تعذّر حفظ الصورة. لم تتم إضافتها للدعوة." };
+  }
+
+  revalidateInvitationMedia(event.id, event.slug);
+  return { success: true };
+}
+
+export async function deleteInvitationMedia(_: MediaActionState, formData: FormData): Promise<MediaActionState> {
+  const event = await getAuthorizedEvent(formData.get("event_id"));
+  const mediaPosition = Number(formData.get("media_position"));
+  if (!event || !Number.isSafeInteger(mediaPosition) || mediaPosition < 1) return { error: "تعذّر حذف الصورة. جرّب مرة أخرى." };
+  const supabase = await createClient();
+  const { data: media, error: mediaError } = await supabase.from("event_media").select("id, storage_path").eq("event_id", event.id).eq("position", mediaPosition).maybeSingle();
+  if (mediaError || !media) return { error: "تعذّر العثور على الصورة." };
+  const { error: storageError } = await supabase.storage.from(invitationMediaBucket).remove([media.storage_path]);
+  if (storageError) return { error: "تعذّر حذف ملف الصورة. لم تُحذف من الدعوة." };
+  const { error: deleteError } = await supabase.from("event_media").delete().eq("id", media.id).eq("event_id", event.id);
+  if (deleteError) return { error: "تم حذف الملف لكن تعذّر تحديث الدعوة. تواصلوا مع الدعم." };
+  revalidateInvitationMedia(event.id, event.slug);
+  return { success: true };
+}
+
+export async function moveInvitationMedia(formData: FormData) {
+  const event = await getAuthorizedEvent(formData.get("event_id"));
+  const mediaPosition = Number(formData.get("media_position"));
+  const intent = formData.get("intent");
+  if (!event || !Number.isSafeInteger(mediaPosition) || mediaPosition < 1 || (intent !== "up" && intent !== "down")) return;
+  const supabase = await createClient();
+  const { data: media } = await supabase.from("event_media").select("id, position").eq("event_id", event.id).order("position");
+  const index = (media ?? []).findIndex((item) => item.position === mediaPosition);
+  const current = media?.[index];
+  const target = media?.[index + (intent === "up" ? -1 : 1)];
+  if (!current || !target) return;
+  const temporaryPosition = Math.max(...(media ?? []).map((item) => item.position)) + 1;
+  const { error: firstError } = await supabase.from("event_media").update({ position: temporaryPosition }).eq("id", target.id).eq("event_id", event.id);
+  if (firstError) return;
+  const { error: secondError } = await supabase.from("event_media").update({ position: target.position }).eq("id", current.id).eq("event_id", event.id);
+  if (secondError) return;
+  await supabase.from("event_media").update({ position: current.position }).eq("id", target.id).eq("event_id", event.id);
+  revalidateInvitationMedia(event.id, event.slug);
 }
 
 function storyValue(formData: FormData, key: "title" | "body" | "date_label") {

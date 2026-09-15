@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- signed Storage URLs retain the existing responsive, lazy browser behavior. */
 import React from "react";
 import { occasionLabels } from "@/config/occasions";
 import { getVariantTokens, textScaleTokens, typographyTokens, type InvitationVariant, type ThemeTokens } from "@/config/invitation-design";
@@ -5,9 +6,10 @@ import { invitationSections, type InvitationSectionId } from "@/config/invitatio
 import type { Locale } from "@/types/locale";
 import { getInvitationDateParts, getTextDirection } from "./content";
 import { Countdown } from "./countdown";
+import { CinematicWeddingStory } from "./experiences/cinematic-wedding-story";
 import type { InvitationModel, StoryItem } from "./types";
 
-type Props = { invitation: InvitationModel; locale: Locale };
+type Props = { invitation: InvitationModel; locale: Locale; presentation?: "studio" | "full" };
 type SectionProps = Props & { tokens: ThemeTokens; variant: InvitationVariant };
 
 function safeUrl(value: string | null) {
@@ -60,7 +62,15 @@ function Location({ invitation, locale, tokens, variant }: SectionProps) {
 
 function Footer({ locale }: { locale: Locale }) { return <footer className="lm-template-footer">{locale === "ar" ? "صُنعت اللحظة عبر Lamma" : "A moment by Lamma"}</footer>; }
 
-export function InvitationRenderer({ invitation, locale }: Props) {
+function Gallery({ invitation, locale, variant }: { invitation: InvitationModel; locale: Locale; variant: InvitationVariant }) {
+  if (!invitation.media.length) return null;
+  return <section className={`lm-template-gallery lm-gallery-${variant}`}><div><span>{locale === "ar" ? "لحظاتنا" : "Our moments"}</span><h2>{locale === "ar" ? "صور من الحكاية" : "Images from our story"}</h2></div><div className="lm-template-gallery-grid">{invitation.media.map((image) => <img alt={image.altText || ""} decoding="async" key={image.position} loading="lazy" src={image.url} />)}</div></section>;
+}
+
+export function InvitationRenderer({ invitation, locale, presentation = "full" }: Props) {
+  if (invitation.experienceKey === "cinematic-wedding-story") {
+    return <CinematicWeddingStory invitation={invitation} locale={locale} preview={presentation === "studio"} />;
+  }
   const variant = invitation.themeConfig.variant || "editorial";
   const tokens = getVariantTokens(variant, invitation.themeConfig.palette);
   const enabled = [...invitation.sections].filter((section) => section.enabled && invitationSections[section.section_type]?.implemented).sort((a, b) => a.position - b.position);
@@ -71,6 +81,7 @@ export function InvitationRenderer({ invitation, locale }: Props) {
     if (type === "event-details") return <Details {...props} key={id} />;
     if (type === "story") return <Story invitation={invitation} locale={locale} variant={variant} key={id} />;
     if (type === "location") return <Location {...props} key={id} />;
+    if (type === "gallery") return <Gallery invitation={invitation} locale={locale} variant={variant} key={id} />;
     if (type === "countdown" && invitation.event.event_date) return <div className={`lm-template-countdown lm-countdown-${variant}`} key={id}><Countdown eventDate={invitation.event.event_date} timeZone={invitation.event.timezone} locale={locale} /></div>;
     if (type === "footer") return <Footer locale={locale} key={id} />;
     return null;

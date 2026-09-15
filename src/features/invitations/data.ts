@@ -6,8 +6,10 @@ import { occasions, type OccasionId } from "@/config/occasions";
 import { defaultInvitationTheme, parseInvitationThemeConfig } from "@/config/invitation-design";
 import { getOwnedEvent } from "@/features/events/data";
 import { createClient } from "@/lib/supabase/server";
+import { invitationMediaBucket } from "./media";
+import { resolvePublishedInvitationMedia } from "./server/published-media";
 
-import type { InvitationContent, InvitationModel, InvitationSection, StoryItem } from "./types";
+import type { InvitationContent, InvitationMedia, InvitationModel, InvitationSection, StoryItem } from "./types";
 import type { Locale } from "@/types/locale";
 
 const defaultContent: InvitationContent = {
@@ -51,20 +53,23 @@ export async function loadInvitationForOwnedEvent(user: User, eventId: string): 
   await initializeInvitation(event.id);
 
   const supabase = await createClient();
-  const [{ data: content, error: contentError }, { data: experience, error: experienceError }, { data: sections, error: sectionsError }, { data: storyItems, error: storyError }] = await Promise.all([
+  const [{ data: content, error: contentError }, { data: experience, error: experienceError }, { data: sections, error: sectionsError }, { data: storyItems, error: storyError }, { data: media, error: mediaError }] = await Promise.all([
     supabase.from("event_content").select("headline, invitation_text, host_names").eq("event_id", event.id).single(),
     supabase.from("event_experience").select("experience_key, theme_config").eq("event_id", event.id).single(),
     supabase.from("event_sections").select("id, section_type, position, enabled").eq("event_id", event.id).order("position"),
     supabase.from("event_story_items").select("id, title, body, date_label, position").eq("event_id", event.id).order("position"),
+    supabase.from("event_media").select("id, storage_path, alt_text, position").eq("event_id", event.id).order("position"),
   ]);
 
-  if (contentError || experienceError || sectionsError || storyError || !content || !experience) {
+  if (contentError || experienceError || sectionsError || storyError || mediaError || !content || !experience) {
     throw new Error("Unable to load invitation.");
   }
 
   const experienceKey = experienceKeys.includes(experience.experience_key as ExperienceKey)
     ? (experience.experience_key as ExperienceKey)
     : "minimal";
+
+  const mediaItems = await resolveMediaUrls(supabase, media ?? []);
 
   return {
     event,
@@ -73,7 +78,19 @@ export async function loadInvitationForOwnedEvent(user: User, eventId: string): 
     themeConfig: parseInvitationThemeConfig(experience.theme_config),
     sections: (sections ?? []) as InvitationSection[],
     storyItems: (storyItems ?? []) as StoryItem[],
+    media: mediaItems,
   };
+}
+
+type MediaRow = { id: string; storage_path: string; alt_text: string | null; position: number };
+
+async function resolveMediaUrls(supabase: Awaited<ReturnType<typeof createClient>>, media: MediaRow[], expiresIn = 60 * 60): Promise<InvitationMedia[]> {
+  if (!media.length) return [];
+  const signedMedia = await Promise.all(media.map(async (item) => {
+    const { data, error } = await supabase.storage.from(invitationMediaBucket).createSignedUrl(item.storage_path, expiresIn);
+    return !error && data?.signedUrl ? { url: data.signedUrl, altText: item.alt_text, position: item.position } : null;
+  }));
+  return signedMedia.filter((item): item is InvitationMedia => item !== null);
 }
 
 type PublicInvitationRow = {
@@ -113,6 +130,8 @@ export async function loadPublishedInvitation(slug: string): Promise<InvitationM
         .filter((section) => invitationSectionIds.includes(section.section_type as InvitationSectionId) && Number.isInteger(section.position) && section.position > 0)
         .map((section) => ({ id: `${section.section_type}-${section.position}`, section_type: section.section_type as InvitationSectionId, position: section.position, enabled: section.enabled === true }))
     : [];
+  const isGalleryEnabled = sections.some((section) => section.section_type === "gallery" && section.enabled);
+  const signedMedia = isGalleryEnabled ? await resolvePublishedInvitationMedia(slug) : [];
 
   return {
     event: {
@@ -131,5 +150,6 @@ export async function loadPublishedInvitation(slug: string): Promise<InvitationM
     themeConfig: parseInvitationThemeConfig(row.theme_config),
     sections,
     storyItems: Array.isArray(row.story) ? row.story.filter((item) => typeof item.title === "string" && typeof item.body === "string" && Number.isInteger(item.position) && item.position > 0).map((item) => ({ id: `story-${item.position}`, title: item.title, body: item.body, date_label: typeof item.date_label === "string" ? item.date_label : null, position: item.position })) : [],
+    media: signedMedia,
   };
 }
