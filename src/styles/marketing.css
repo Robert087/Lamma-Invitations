@@ -1,0 +1,488 @@
+/* ==========================================================================
+   LAMMA — Editorial Wedding Marketing Design System
+   Art Direction: High-fashion wedding editorial + luxury digital celebration
+   Signature Accent: Deep Romantic Burgundy (#6B1736)
+   Palette: Pure White (#FFFFFF), Warm Alabaster (#FAF8F6), Soft Linen (#F5EBE6),
+            Deep Obsidian Ink (#1A1615), Deep Burgundy Wine (#250612)
+   ========================================================================== */
+
+:root {
+  --lm-market-max: 1280px;
+  --lm-market-narrow: 840px;
+  --lm-market-wide: 1440px;
+
+  /* Authorized Wedding Editorial Palette */
+  --lm-canvas: #ffffff;
+  --lm-surface-warm: #faf8f6;
+  --lm-surface-tint: #f5ebe6;
+  --lm-surface-card: #ffffff;
+
+  /* Typography Colors */
+  --lm-ink: #1a1615;
+  --lm-ink-secondary: #47403c;
+  --lm-muted: #78716c;
+  --lm-border: #e8e3dd;
+  --lm-border-subtle: #f0ece7;
+
+  /* Signature Burgundy Palette */
+  --lm-burgundy: #6b1736;
+  --lm-burgundy-dark: #4a0d23;
+  --lm-burgundy-deep: #250612;
+  --lm-burgundy-soft: #faf0f3;
+  --lm-burgundy-border: rgba(107, 23, 54, 0.2);
+  --lm-burgundy-border-subtle: rgba(107, 23, 54, 0.09);
+  --lm-burgundy-glow: rgba(107, 23, 54, 0.25);
+
+  /* Legacy mapping pointing to Burgundy */
+  --lm-accent: var(--lm-burgundy);
+  --lm-accent-dark: var(--lm-burgundy-dark);
+  --lm-accent-soft: var(--lm-burgundy-soft);
+  --lm-accent-border: var(--lm-burgundy-border);
+  --lm-accent-glow: var(--lm-burgundy-glow);
+
+  /* Champagne / Gold Accent Line */
+  --lm-gold: #c5a46d;
+  --lm-gold-soft: #fbf7f0;
+
+  /* Editorial Shadows */
+  --lm-shadow-sm: 0 2px 10px -2px rgba(26, 22, 21, 0.05);
+  --lm-shadow-card: 0 16px 40px -10px rgba(26, 22, 21, 0.08), 0 2px 8px -2px rgba(26, 22, 21, 0.04);
+  --lm-shadow-elevated: 0 24px 56px -12px rgba(107, 23, 54, 0.18), 0 6px 16px -4px rgba(26, 22, 21, 0.06);
+  --lm-shadow-stage: 0 36px 80px -18px rgba(26, 22, 21, 0.18);
+  --lm-shadow-cta: 0 10px 26px -4px rgba(107, 23, 54, 0.38);
+
+  /* Glassmorphic Nav */
+  --lm-glass-nav-bg: rgba(255, 255, 255, 0.95);
+  --lm-glass-nav-border: rgba(232, 227, 221, 0.85);
+}
+
+/* Subtle Tactile Paper Grain Texture */
+.lm-paper-grain {
+  background-image: radial-gradient(rgba(107, 23, 54, 0.02) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Layout Containers */
+.lm-market-container {
+  width: min(100% - 2.5rem, var(--lm-market-max));
+  margin-inline: auto;
+}
+
+.lm-market-container-wide {
+  width: min(100% - 2rem, var(--lm-market-wide));
+  margin-inline: auto;
+}
+
+.lm-market-container-narrow {
+  width: min(100% - 2rem, var(--lm-market-narrow));
+  margin-inline: auto;
+}
+
+/* Modern Contemporary Marketing Typography System */
+:root {
+  --font-market-sans: var(--font-alexandria), var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-market-display: var(--font-cormorant), Georgia, serif;
+}
+
+.lm-market-container,
+.lm-market-container-wide,
+.lm-market-container-narrow,
+.lm-glass-nav,
+.lm-editorial-headline,
+.lm-section-headline,
+.lm-btn-primary,
+.lm-btn-secondary,
+.lm-editorial-kicker,
+.lm-editorial-sub,
+.lm-nav-link,
+.lm-vibe-pill {
+  font-family: var(--font-market-sans);
+}
+
+/* Glass Header */
+.lm-glass-nav {
+  background: var(--lm-glass-nav-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--lm-glass-nav-border);
+}
+
+/* Navigation Link with Animated Burgundy Underline */
+.lm-nav-link {
+  position: relative;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--lm-ink);
+  transition: color 0.2s ease;
+  padding-block: 0.4rem;
+}
+
+.lm-nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--lm-burgundy);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 9999px;
+}
+
+.lm-nav-link:hover {
+  color: var(--lm-burgundy);
+}
+
+.lm-nav-link:hover::after,
+.lm-nav-link.is-active::after {
+  transform: scaleX(1);
+}
+
+.lm-nav-link.is-active {
+  color: var(--lm-burgundy);
+  font-weight: 700;
+}
+
+/* Editorial Typography */
+.lm-editorial-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--lm-burgundy);
+}
+
+.lm-editorial-headline {
+  font-size: clamp(2.35rem, 5.2vw, 4.2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.18;
+  color: var(--lm-ink);
+}
+
+.lm-editorial-headline em {
+  font-family: var(--font-market-display);
+  font-style: italic;
+  color: var(--lm-burgundy);
+  font-weight: 600;
+}
+
+.lm-editorial-sub {
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  color: var(--lm-ink-secondary);
+  line-height: 1.75;
+  font-weight: 400;
+}
+
+.lm-section-headline {
+  font-size: clamp(1.9rem, 3.8vw, 2.9rem);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  color: var(--lm-ink);
+}
+
+.lm-section-headline em {
+  font-family: var(--font-market-display);
+  font-style: italic;
+  color: var(--lm-burgundy);
+  font-weight: 600;
+}
+
+/* Scroll-Reveal Micro-Interaction Engine */
+.lm-scroll-fade-up {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.lm-scroll-fade-up.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.lm-scroll-clip {
+  opacity: 0;
+  clip-path: inset(0 0 40px 0);
+  transform: translateY(18px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lm-scroll-clip.is-revealed {
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+  transform: translateY(0);
+}
+
+.lm-scroll-stagger > * {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lm-scroll-stagger.is-revealed > *:nth-child(1) { transition-delay: 0.05s; opacity: 1; transform: translateY(0); }
+.lm-scroll-stagger.is-revealed > *:nth-child(2) { transition-delay: 0.15s; opacity: 1; transform: translateY(0); }
+.lm-scroll-stagger.is-revealed > *:nth-child(3) { transition-delay: 0.25s; opacity: 1; transform: translateY(0); }
+.lm-scroll-stagger.is-revealed > *:nth-child(4) { transition-delay: 0.35s; opacity: 1; transform: translateY(0); }
+.lm-scroll-stagger.is-revealed > *:nth-child(n+5) { transition-delay: 0.45s; opacity: 1; transform: translateY(0); }
+
+/* Primary Burgundy CTA Button */
+.lm-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background: var(--lm-burgundy);
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 0.96rem;
+  padding: 0.9rem 2.2rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  box-shadow: var(--lm-shadow-cta);
+  border: 1px solid transparent;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.22s ease,
+              box-shadow 0.22s ease;
+  cursor: pointer;
+}
+
+.lm-btn-primary .lm-cta-arrow {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lm-btn-primary:hover {
+  background: var(--lm-burgundy-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -4px rgba(107, 23, 54, 0.48);
+}
+
+.lm-btn-primary:hover .lm-cta-arrow {
+  transform: translateX(4px);
+}
+
+[dir="rtl"] .lm-btn-primary:hover .lm-cta-arrow {
+  transform: translateX(-4px);
+}
+
+.lm-btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Secondary Editorial CTA Button */
+.lm-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background: #ffffff;
+  color: var(--lm-ink);
+  font-weight: 700;
+  font-size: 0.96rem;
+  padding: 0.9rem 2rem;
+  border-radius: 9999px;
+  border: 1px solid var(--lm-border);
+  text-decoration: none;
+  box-shadow: var(--lm-shadow-sm);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease,
+              color 0.2s ease,
+              background 0.2s ease;
+  cursor: pointer;
+}
+
+.lm-btn-secondary:hover {
+  background: var(--lm-burgundy-soft);
+  border-color: var(--lm-burgundy);
+  color: var(--lm-burgundy);
+  transform: translateY(-2px);
+  box-shadow: var(--lm-shadow-card);
+}
+
+.lm-btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* Desktop Tilt Perspective Stage */
+.lm-desktop-tilt-stage {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.lm-desktop-tilt-inner {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease;
+  will-change: transform;
+}
+
+/* Hero Entrance Sequence Keyframes */
+@keyframes lmHeroImageEnter {
+  0% {
+    opacity: 0;
+    transform: scale(1.035);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes lmHeroInvitationEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(28px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes lmHeroFlourishEnter {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes lmHeroCopyEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lm-anim-hero-image {
+  animation: lmHeroImageEnter 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.lm-anim-hero-stage {
+  animation: lmHeroInvitationEnter 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
+}
+
+.lm-anim-hero-flourish {
+  animation: lmHeroFlourishEnter 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.32s both;
+}
+
+.lm-anim-hero-copy {
+  animation: lmHeroCopyEnter 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.44s both;
+}
+
+/* Burgundy Line Expanding Animations */
+@keyframes lmLineExpandLeft {
+  0% {
+    transform: scaleX(0);
+    transform-origin: right;
+  }
+  100% {
+    transform: scaleX(1);
+    transform-origin: right;
+  }
+}
+
+@keyframes lmLineExpandRight {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  100% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+.lm-line-expand-left {
+  animation: lmLineExpandLeft 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.lm-line-expand-right {
+  animation: lmLineExpandRight 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* SVG Stem Stroke Drawing */
+@keyframes lmDrawStroke {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.lm-draw-stem {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: lmDrawStroke 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+}
+
+.lm-draw-stem-delay-1 {
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  animation: lmDrawStroke 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
+}
+
+.lm-draw-stem-delay-2 {
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  animation: lmDrawStroke 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.75s forwards;
+}
+
+/* Style Vibe Switch Pill */
+.lm-vibe-pill {
+  padding: 0.65rem 1.4rem;
+  border-radius: 9999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border: 1px solid var(--lm-border);
+  background: #ffffff;
+  color: var(--lm-ink-secondary);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.lm-vibe-pill:hover {
+  border-color: var(--lm-burgundy);
+  color: var(--lm-burgundy);
+}
+
+.lm-vibe-pill.is-active {
+  background: var(--lm-burgundy);
+  color: #ffffff;
+  border-color: var(--lm-burgundy);
+  box-shadow: var(--lm-shadow-cta);
+}
+
+/* Complete Reduced Motion Behavior */
+@media (prefers-reduced-motion: reduce) {
+  .lm-btn-primary,
+  .lm-btn-secondary,
+  .lm-anim-hero-image,
+  .lm-anim-hero-stage,
+  .lm-anim-hero-flourish,
+  .lm-anim-hero-copy,
+  .lm-line-expand-left,
+  .lm-line-expand-right,
+  .lm-draw-stem,
+  .lm-draw-stem-delay-1,
+  .lm-draw-stem-delay-2,
+  .lm-desktop-tilt-inner,
+  .lm-vibe-pill {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}

@@ -84,7 +84,9 @@ export async function createEvent(_: CreateEventState, formData: FormData): Prom
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return { formError: "انتهت جلستك. يرجى تسجيل الدخول مرة أخرى." };
+  if (!user) {
+    redirect("/sign-in?next=/dashboard/events/new");
+  }
 
   for (let attempt = 0; attempt < maximumSlugAttempts; attempt += 1) {
     const { data, error } = await supabase

@@ -24,7 +24,7 @@
     if (request.nextUrl.pathname.startsWith("/dashboard") && !data?.claims.sub) {
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = "/sign-in";
-      redirectUrl.search = "";
+      redirectUrl.search = `?next=${encodeURIComponent(request.nextUrl.pathname + request.nextUrl.search)}`;
 
       return NextResponse.redirect(redirectUrl);
     }

@@ -46,15 +46,15 @@ export type VariantMetadata = {
 export const variantRegistry: Record<InvitationVariant, VariantMetadata> = {
   editorial: {
     id: "editorial",
-    label: { ar: "تحريري هادئ", en: "Editorial" },
-    description: { ar: "أناقة هادئة مع مساحات واسعة وتوازن راقٍ للنصوص", en: "Refined, warm editorial rhythm and intentional whitespace" },
-    previewHint: { ar: "توازن تحريري", en: "Refined layout" },
+    label: { ar: "فصل هادئ", en: "The Quiet Chapter" },
+    description: { ar: "افتتاحية واسعة بإيقاع تحريري ومساحات تتنفس", en: "A spacious opening with literary pacing and breathing room" },
+    previewHint: { ar: "إيقاع قصصي", en: "Story-led rhythm" },
   },
   statement: {
     id: "statement",
-    label: { ar: "جريء ومؤثر", en: "Statement" },
-    description: { ar: "حضور بصري قوي مع أسماء بارزة وتفاصيل حاسمة", en: "Oversized bold typography and commanding presence" },
-    previewHint: { ar: "خطوط عريضة وقوية", en: "Oversized type" },
+    label: { ar: "اللحظة الكبيرة", en: "The Big Moment" },
+    description: { ar: "أسماء ضخمة وتاريخ يتحول إلى بيان بصري", en: "A typographic announcement built around the names and date" },
+    previewHint: { ar: "بيان بصري", en: "Typographic statement" },
   },
   split: {
     id: "split",

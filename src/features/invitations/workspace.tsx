@@ -13,8 +13,10 @@ import {
   type InvitationVariant,
   type PalettePreset,
 } from "@/config/invitation-design";
+import { experiences, experienceKeys, type ExperienceKey } from "@/config/experiences";
 import { invitationSections } from "@/config/invitation-sections";
 import { StoryManager } from "./story-manager";
+import { MediaManager } from "./media-manager";
 import { AiCreator } from "./ai-creator";
 import {
   publishInvitation,
@@ -51,6 +53,7 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
   const [tab, setTab] = useState<Tab>("content");
   const [draft, setDraft] = useState<InvitationContent>(invitation.content);
   const [designDraft, setDesignDraft] = useState<InvitationThemeConfig>(invitation.themeConfig);
+  const [experienceDraft, setExperienceDraft] = useState<ExperienceKey>(invitation.experienceKey);
   const [state, saveContent, isPending] = useActionState(updateInvitationContent, initialUpdateInvitationState);
   const [mode, setMode] = useState<"mobile" | "desktop">("mobile");
 
@@ -59,8 +62,9 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
       ...invitation,
       content: draft,
       themeConfig: designDraft,
+      experienceKey: experienceDraft,
     }),
-    [draft, designDraft, invitation]
+    [draft, designDraft, experienceDraft, invitation]
   );
 
   const nav: Array<{ id: Tab; label: string }> = [
@@ -215,9 +219,28 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
             {tab === "design" ? (
               <form action={updateInvitationDesign} className="space-y-6">
                 <input name="event_id" type="hidden" value={invitation.event.id} />
+                <input name="experience_key" type="hidden" value={experienceDraft} />
                 <input name="cover" type="hidden" value={designDraft.cover.style} />
 
                 <div>
+                  <p className="lm-kicker">تجربة الدعوة</p>
+                  <p className="mt-1 text-sm text-[var(--lm-muted)]">اختار الرحلة التي يعيشها ضيوفك من أول لحظة.</p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {experienceKeys.map((experienceKey) => {
+                      const experience = experiences[experienceKey];
+                      const isSelected = experienceDraft === experienceKey;
+                      return <label key={experienceKey} className={`relative cursor-pointer rounded-xl border p-3 transition-all ${isSelected ? "border-[var(--lm-accent)] bg-[var(--lm-accent-soft)]/20 ring-2 ring-[var(--lm-accent)]" : "border-[var(--lm-line)] bg-white hover:border-gray-300"}`}>
+                        <input className="sr-only" type="radio" name="experience_choice" value={experienceKey} checked={isSelected} onChange={() => setExperienceDraft(experienceKey)} />
+                        <ExperienceThumbnail experience={experienceKey} />
+                        <span className="mt-2 block text-sm font-bold text-[var(--lm-ink)]">{experience.label.ar}</span>
+                        <span className="block text-[11px] font-medium text-[var(--lm-muted)]">{experience.label.en}</span>
+                        <span className="mt-1 block text-[11px] leading-relaxed text-[var(--lm-muted)]">{experience.description.ar}</span>
+                      </label>;
+                    })}
+                  </div>
+                </div>
+
+                <div className="border-t border-[var(--lm-line)] pt-5">
                   <p className="lm-kicker">نمط التصميم</p>
                   <p className="mt-1 text-sm text-[var(--lm-muted)]">
                     اختر التكوين البصري الأنسب لطابع مناسبتك.
@@ -372,6 +395,7 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
                   {Object.values(invitationSections).map((definition) => {
                     const section = invitation.sections.find((item) => item.section_type === definition.id);
                     const isCountdown = definition.id === "countdown";
+                    const isGallery = definition.id === "gallery";
                     return (
                       <div className="rounded-xl border border-[var(--lm-line)] p-3" key={definition.id}>
                         <div className="flex items-center justify-between gap-3">
@@ -384,9 +408,13 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
                                   : section?.enabled
                                   ? isCountdown
                                     ? "ظاهر في الدعوة"
+                                    : isGallery && invitation.media.length === 0
+                                    ? "أضيفوا صور عشان تظهر في الدعوة"
                                     : "ظاهر"
                                   : isCountdown
                                   ? "فاضل قد إيه على اليوم الكبير"
+                                  : isGallery
+                                  ? "اختاروا الصور اللي عايزينها تظهر"
                                   : "مخفي"
                                 : "قريبًا"}
                             </p>
@@ -397,7 +425,7 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
                               <input name="section_id" type="hidden" value={definition.id} />
                               <input name="intent" type="hidden" value="toggle" />
                               <button className="lm-button lm-button-quiet" type="submit">
-                                {section.enabled ? "إخفاء" : isCountdown ? "إظهار في الدعوة" : "إظهار"}
+                                {section.enabled ? "إخفاء" : isCountdown || isGallery ? "إظهار في الدعوة" : "إظهار"}
                               </button>
                             </form>
                           ) : null}
@@ -423,6 +451,7 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
                   })}
                 </div>
                 <StoryManager eventId={invitation.event.id} items={invitation.storyItems} />
+                <MediaManager eventId={invitation.event.id} locale={invitation.event.primary_locale} media={invitation.media} />
               </>
             ) : null}
           </section>
@@ -461,13 +490,18 @@ export function InvitationWorkspace({ invitation, isPublished, publicUrl }: Prop
                 mode === "mobile" ? "mx-auto max-w-[390px]" : "w-full"
               }`}
             >
-              <InvitationRenderer invitation={preview} locale={invitation.event.primary_locale} />
+              <InvitationRenderer invitation={preview} locale={invitation.event.primary_locale} presentation="studio" />
             </div>
           </section>
         </div>
       </main>
     </div>
   );
+}
+
+function ExperienceThumbnail({ experience }: { experience: ExperienceKey }) {
+  if (experience === "minimal") return <div className="flex h-16 items-center justify-center rounded-lg border border-[#eddcd0] bg-[#fdfaf7]"><span className="h-px w-16 bg-[#c96242]" /></div>;
+  return <div className="relative h-16 overflow-hidden rounded-lg bg-[#172728] p-2 text-[#f8f2e9]"><span className="absolute -right-3 -top-5 h-16 w-16 rounded-full border border-[#d5b57d]/40" /><span className="relative block text-[7px] uppercase tracking-[.24em] text-[#d5b57d]">A journey</span><span className="relative mt-2 block h-2 w-2/3 rounded-sm bg-[#f8f2e9]/90" /><span className="relative mt-2 block h-px w-full bg-[#d5b57d]/50" /><span className="relative mt-2 block h-1 w-1/3 bg-[#f8f2e9]/40" /></div>;
 }
 
 function VariantThumbnail({ variant }: { variant: InvitationVariant }) {
